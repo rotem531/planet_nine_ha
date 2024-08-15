@@ -57,6 +57,7 @@ async function loadJsonToRedis(){
       // console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
       for (const key in jsonData) {
         // console.log(`loading ${key}: ${jsonData[key]} to redis`);
+
         client.hSet('user-session:123',key,jsonData[key]);
       }
     });
@@ -91,7 +92,6 @@ app.get('/tasks', async (req, res) => {
     // await client.connect();
     const userSession = await client.hGetAll('user-session:123');
     // client.quit();
-    
     let dataAsJson=JSON.stringify(userSession, null, 2);
     res.json(Object.entries(JSON.parse(dataAsJson)));
     // res.json(userSession);
