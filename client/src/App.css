@@ -17,16 +17,46 @@
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
+.Form{
+  margin: 1%;
+}
+
+li{
+  margin: 1%;
+}
+
 .App-link {
   color: #61dafb;
 }
+
+#list_div{
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  height: 100%;
+  width: 50%;
+}
+
+li{
+    list-style: none; 
+    margin-bottom: '10px' ;
+  }
+
+label{
+  display: flex;
+  flex-direction: row;
+}
+.radios{
+  margin-right: 10%;
+}
+
 
 @keyframes App-logo-spin {
   from {

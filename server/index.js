@@ -54,10 +54,10 @@ async function loadJsonToRedis(){
       }
       const jsonData = JSON.parse(data);
 
-      console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
+      // console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
       for (const key in jsonData) {
-        console.log(`loading ${key}: ${jsonData[key]} to redis`);
-        client.set(key,jsonData[key]);
+        // console.log(`loading ${key}: ${jsonData[key]} to redis`);
+        client.hSet('user-session:123',key,jsonData[key]);
       }
     });
   }
@@ -97,7 +97,7 @@ app.get('/tasks', async (req, res) => {
     // res.json(userSession);
     // console.log(`GET returns ${Object.entries(JSON.parse(dataAsJson))[0][0]}`)
   }
-  catch (err){console.log(`error with GET ${err}`); res.json({"didnt":"didnt work"});}
+  catch (err){console.log(`error with GET ${err}`);}
 
   });
   

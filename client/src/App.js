@@ -3,8 +3,11 @@ import logo from "./logo.svg";
 import "./App.css";
 
 function App() {
-  const [h2Content, seth2Content] = React.useState('nothing');
   const [text, setText] = React.useState('');
+
+  React.useEffect(() => {
+    PrintAll();
+  }, []);
 
   // Handler to update state when the input changes
   const handleChange = (event) => {
@@ -12,15 +15,9 @@ function App() {
   };
 
   async function AddItem() {
-    
-    // h2Content="trying";
-    // const [name, setName] = React.useState('');
-    console.log("entered");
-  
-    // const handleSubmit = (e) => {
-    //   e.preventDefault();
-      
-    // };
+
+    // console.log("entered");
+
     console.log("after e.preventDefault();");
     
   
@@ -45,70 +42,73 @@ function App() {
   // seth2Content("nothing");
   const [data, setData] = React.useState(null);
   // let tasks=[["1","first"],["2","sec"]];
-  const [tasks, setTasks] = React.useState([["1","first"],["2","sec"]]);
+  const [tasks, setTasks] = React.useState([]);
 
 
   async function PrintAll(){
-    seth2Content("fetching");
-    
     await fetch("/tasks")
         .then((res) => res.json())
-        .then((dataa) => setTasks(dataa));
-        // data.forEach(element => {
-          
-        // });
-        console.log(`data is ${data}`);
-        
-        // setTasks(data);
-        seth2Content(tasks);
-        seth2Content("finished");
-
+        .then((dataa) => {setTasks(dataa); console.log(dataa);});
+        // console.log(`data is ${data}`);
+        setTexti(`${tasks.length}`);
   }
+
+
   async function DeleteItem(){
     // const idToDelete="1";
-    console.log("STARTED DELETE");
-    fetch(`/tasks/${text}`, {
+    // console.log("STARTED DELETE");
+    fetch(`/tasks/${selectedItem}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: 'sdc'})
     });
-    console.log("FINISHED DELETE");
+    // console.log("FINISHED DELETE");
     PrintAll();
   }
-
-  
+  const [selectedItem, setSelectedItem] = React.useState(null);
+  const [texti, setTexti] = React.useState("addItem");
+  const handleSelectItem = (event) => {
+    setSelectedItem(event.target.value);
+    console.log(event.target.value);
+  };
 
 
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>{!data ? "Loading..." : data}</p>
-        <button onClick={AddItem} type="button">add item</button>
-        <button onClick={DeleteItem} type="button">delete</button>
-        <button onClick={PrintAll} type="button">print</button>
-        <h2 id="2">{h2Content}</h2>
-        <input
-        type="text"
-        value={text}
-        onChange={handleChange}
-        placeholder="Enter some text"
-        />
-        <ul>
-        {tasks.map((item) => (
-          <li key={item[0]}>
-            <input
-                type="radio"
-                value={item}
-                // checked={selectedItem === item}
-                // onChange={handleSelectItem}
-              />
-            {item[1]}
-          </li>
-        ))}
-      </ul>
+        <div id="list_div">
+          <ul>
+            {tasks.map((item) => (
+              <li key={item[0]}>
+                <label>
+                  <input className="radios"
+                    type="radio"
+                    name="radios"
+                    value={item[0]}
+                    checked={selectedItem === item[0]}
+                    onChange={handleSelectItem}
+                  />
+              {item[1]}
+            </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div id="actions_div">
+          <button className="Form" onClick={AddItem} type="button">add task</button>
+          <input className="Form"
+          type="text"
+          value={text}
+          onChange={handleChange}
+          placeholder="Enter some text"
+          />
+          <button className="Form" onClick={DeleteItem} type="button">delete</button>
+          <button className="Form" onClick={PrintAll} type="button">print</button>
+          
+        </div>
+        
       </header>
     </div>
   );
