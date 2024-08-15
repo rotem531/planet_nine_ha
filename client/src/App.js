@@ -99,6 +99,12 @@ function App() {
         <ul>
         {tasks.map((item) => (
           <li key={item[0]}>
+            <input
+                type="radio"
+                value={item}
+                // checked={selectedItem === item}
+                // onChange={handleSelectItem}
+              />
             {item[1]}
           </li>
         ))}
