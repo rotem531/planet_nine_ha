@@ -8,6 +8,10 @@ const PORT = process.env.PORT || 3001;
 const REDIS_PORT = process.env.PORT || 6379;
 
 const client = redis.createClient(REDIS_PORT);
+client.on('error', err => console.log('Redis Client Error', err));
+console.log(`on`);
+client.connect();
+console.log(`connected`);
 
 const app = express();
 app.use(express.json());
@@ -137,9 +141,9 @@ async function loadJsonToRedis(){
     }
   
     const jsonData = JSON.parse(data);
-    client.on('error', err => console.log('Redis Client Error', err));
+    // client.on('error', err => console.log('Redis Client Error', err));
 
-    await client.connect();
+    // await client.connect();
 
     // await client.hSet('user-session:123', jsonData);
     console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
@@ -150,7 +154,7 @@ async function loadJsonToRedis(){
     }
 
 
-    client.quit();
+    // client.quit();
 
     // for (const key in jsonData) {
     //   // console.log(`${key}: ${jsonData[key]}`);
@@ -221,29 +225,17 @@ function addToJson(key,val){
 
 async function deleteTaskRedis(taskId){
   console.log(`inside delete task redis`);
-  client.on('error', err => console.log('Redis Client Error', err));
-  console.log(`on`);
-  await client.connect();
-  console.log(`connected and task id is ${taskId}`);
+  // client.on('error', err => console.log('Redis Client Error', err));
+  // console.log(`on`);
+  // await client.connect();
+  // console.log(`connected and task id is ${taskId}`);
   try{
-  await client.hDel('user-session:123',taskId, (err, response) => {
-  if (err) {
-    console.log('Error deleting key:', err);
-  } else if (response === 1) {
-    console.log(`Key ${taskId} deleted successfully`);
-    
-    
-  } else {
-    console.log(`Key ${taskId} does not exist`);
-  }
-  
-  client.quit(); // Close the Redis connection
-}).then(()=>{
-  saveRedisDataToJson();
-});
+    await client.hDel('user-session:123',taskId);
+    await saveRedisDataToJson();
   }
   catch(err){console.log(err);}
-  finally{client.quit();}
+  // finally{client.quit();}
+  console.log(`finished delete ${taskId} task from redis`);
 
 }
 
@@ -276,18 +268,26 @@ app.get('/tasks', async (req, res) => {
   // const keys=client.keys();
   tasks = [];
   console.log("entered get");
-  const userSession = await client.hGetAll('user-session:123');
-  // const userSession = await client.hGetAll();
-  console.log(`user session type is ${typeof(userSession)}`);
-  let dataAsJson=JSON.stringify(userSession, null, 2);
-  console.log(dataAsJson);
-  for (const key in userSession) {
-    tasks.push(userSession[key]);
-    console.log(`pushing ${key}:${userSession[key]}`);
-    
+  try{
+    // client.on('error', err => console.log('Redis Client Error', err));
+    // await client.connect();
+    const userSession = await client.hGetAll('user-session:123');
+    // client.quit();
+    // const userSession = await client.hGetAll();
+    console.log(`user session type is ${typeof(userSession)}`);
+    let dataAsJson=JSON.stringify(userSession, null, 2);
+    console.log(dataAsJson);
+    for (const key in userSession) {
+      tasks.push(userSession[key]);
+      console.log(`pushing ${key}:${userSession[key]}`);
+      
+    }
+      // console.log(typeof(dataAsJson));
+      res.json(Object.entries(JSON.parse(dataAsJson)));
+      console.log(`GET returns ${Object.entries(JSON.parse(dataAsJson))[0][0]}`)
   }
-    // console.log(typeof(dataAsJson));
-    res.json(tasks);
+  catch (err){console.log(`error with GET ${err}`); res.json({"didnt":"didnt work"});}
+
   });
   
   // POST endpoint to add a new item
@@ -299,13 +299,13 @@ app.get('/tasks', async (req, res) => {
       val="rotem";
     }
     const key=getKeyByTime();
-    client.on('error', err => console.log('Redis Client Error', err));
-    await client.connect();
+    // client.on('error', err => console.log('Redis Client Error', err));
+    // await client.connect();
     await client.hSet('user-session:123',key, val).then(()=>{
       saveRedisDataToJson();
     });
     const value  = await client.get(key);  
-    client.quit();
+    // client.quit();
     // await saveRedisDataToJson();
     console.log(`val is ${value}`)
     console.log(`key is ${key}`)
@@ -339,37 +339,11 @@ app.get('/tasks', async (req, res) => {
   
   // DELETE endpoint to remove an item by ID
   app.delete('/tasks/:id', async (req, res) => {
-    const { key } = req.params;
-    // const itemIndex = items.findIndex(item => item.id === id);
-    
-    // if (itemIndex !== -1) {
-    //   const deletedItem = items.splice(itemIndex, 1);
-    //   res.json(deletedItem);
-    //   // save in cache
-    // // save in json
-    // } else {
-    //   res.status(404).json({ message: "Item not found" });
-    // }
 
     console.log("inside delete nodejs");
     console.log(req.params);
-    deleteTaskRedis(req.params.id);
-    
-
-
-
-
-    // try {
-    //   const result = await client.del(key);
-      
-    //   if (result === 1) {
-    //     console.log(`Key ${key} deleted successfully`);
-    //   } else {
-    //     console.log(`Key ${key} does not exist`);
-    //   }
-    // } catch (err) {
-    //   console.error('Error deleting key from Redis:', err);
-    // }
+    await deleteTaskRedis(req.params.id);
+    console.log("LEAVING DELETE");
   });
 
 app.listen(PORT, () => {

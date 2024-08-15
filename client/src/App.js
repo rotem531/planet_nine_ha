@@ -11,19 +11,20 @@ function App() {
     setText(event.target.value);
   };
 
-  const AddItem = () => {
+  async function AddItem() {
+    
     // h2Content="trying";
     // const [name, setName] = React.useState('');
     console.log("entered");
   
-    const handleSubmit = (e) => {
-      e.preventDefault();
+    // const handleSubmit = (e) => {
+    //   e.preventDefault();
       
-    };
+    // };
     console.log("after e.preventDefault();");
     
   
-      fetch('/tasks', {
+      await fetch('/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +36,7 @@ function App() {
         console.log('Item added:', data);
       })
       .catch(error => console.error('Error adding item:', error));
-      console.log("end");
+      PrintAll();
   }
 
   
@@ -43,34 +44,38 @@ function App() {
 
   // seth2Content("nothing");
   const [data, setData] = React.useState(null);
+  // let tasks=[["1","first"],["2","sec"]];
+  const [tasks, setTasks] = React.useState([["1","first"],["2","sec"]]);
+
+
   async function PrintAll(){
-    seth2Content("printing");
+    seth2Content("fetching");
     
     await fetch("/tasks")
         .then((res) => res.json())
-        .then((dataa) => setData(dataa));
+        .then((dataa) => setTasks(dataa));
         // data.forEach(element => {
           
         // });
         console.log(`data is ${data}`);
-        seth2Content(data);
+        
+        // setTasks(data);
+        seth2Content(tasks);
+        seth2Content("finished");
 
   }
-  function DeleteItem(){
+  async function DeleteItem(){
     // const idToDelete="1";
+    console.log("STARTED DELETE");
     fetch(`/tasks/${text}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: 'sdc'})
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Item added:', data);
-    })
-    .catch(error => console.error('Error adding item:', error));
-
+    });
+    console.log("FINISHED DELETE");
+    PrintAll();
   }
 
   
@@ -91,6 +96,13 @@ function App() {
         onChange={handleChange}
         placeholder="Enter some text"
         />
+        <ul>
+        {tasks.map((item) => (
+          <li key={item[0]}>
+            {item[1]}
+          </li>
+        ))}
+      </ul>
       </header>
     </div>
   );
