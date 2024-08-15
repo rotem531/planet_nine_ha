@@ -12,6 +12,9 @@ const client = redis.createClient(REDIS_PORT);
 const app = express();
 app.use(express.json());
 
+// const keysAsync = promisify(client.keys).bind(client);
+// const hgetallAsync = promisify(client.hgetall).bind(client);
+
 
 let tasks=[];
 
@@ -29,6 +32,90 @@ let tasks=[];
 //     // console.log(config.firstName + ' ' + config.lastName);
 //   });
 
+// async function saveRedisToJson(){
+//   var r = {};
+
+//   client.keys('*', function(err, keys) {
+//     async.each(keys, function(key, callback) {
+//       client.get(key, function(err, value) {
+//         r[key] = value;
+//         callback(err);
+//       });
+//     }, function() {
+//       // when callback is finished
+//       console.log(JSON.stringify(r));
+//       client.quit();
+//     });
+//   });
+//   if (r){
+//     fs.writeFile('server/tasksJson.json', JSON.stringify(r, null, 2), (err) => {
+//       if (err) {
+//         console.error('Error writing to file:', err);
+//       } else {
+//         console.log(`saved json`);
+//       }
+//     });
+//   }
+// }
+
+async function saveRedisDataToJson() {
+  console.log("inside save to json");
+  try {
+    // client.on('error', err => console.log('Redis Client Error', err));
+    // await client.connect();
+    const userSession = await client.hGetAll('user-session:123');
+    // const userSession = await client.hGetAll();
+    console.log(JSON.stringify(userSession));
+    fs.writeFileSync('server/tasksJson.json', JSON.stringify(userSession, null, 2));
+
+
+  //   const keys = await keysAsync('*'); // Get all keys
+  //   const data = {};
+
+  //   for (const key of keys) {
+  //     // const type = await promisify(client.type).bind(client)(key);
+
+  //     data[key] = await hgetallAsync(key);
+  //   }
+
+  //   // Write data to a JSON file
+  //   fs.writeFileSync('server/tasksJson.json', JSON.stringify(data, null, 2));
+
+  //   console.log('Redis data saved to redis-data.json');
+  // } catch (err) {
+  //   console.error('Error saving Redis data to JSON:', err);
+  // } finally {
+  //   client.quit(); // Close the Redis connection
+  // }
+
+
+  // let data={};
+    // client.on('error', err => console.log('Redis Client Error', err));
+    // await client.connect();
+  //   client.keys('*', (err, keys) => {
+  //     if (err) throw err;
+  //     keys.forEach(key => {
+  //       client.get(key, (err, value) => {
+  //         if (err) throw err;
+  //         console.log(`FORSAVIG key is ${key} val is ${value}`);
+  //         data[key]=value;
+  //       });
+  //     })
+
+  //   }).then(()=>{
+  //     console.log(`data to save is ${data}`);
+  //     fs.writeFileSync('server/tasksJson.json', JSON.stringify(data, null, 2));
+  //     console.log("saved json");
+  //   });
+    
+  // }
+  // catch(err){console.log('Error saving Redis data to JSON:', err);}
+  // finally{client.quit();}
+  console.log("finish save to json");
+  }
+  catch(err){console.log('Error saving Redis data to JSON:', err);}
+  // finally{client.quit();}
+}
 
 async function getTasks(req,res,next) {
   try{
@@ -54,7 +141,16 @@ async function loadJsonToRedis(){
 
     await client.connect();
 
-    await client.hSet('user-session:123', jsonData);
+    // await client.hSet('user-session:123', jsonData);
+    console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
+    // await client.hSet(jsonData);
+    for (const key in jsonData) {
+      console.log(`loading ${key}: ${jsonData[key]} to redis`);
+      client.set(key,jsonData[key]);
+    }
+
+
+    client.quit();
 
     // for (const key in jsonData) {
     //   // console.log(`${key}: ${jsonData[key]}`);
@@ -123,31 +219,32 @@ function addToJson(key,val){
   });
 }
 
+async function deleteTaskRedis(taskId){
+  console.log(`inside delete task redis`);
+  client.on('error', err => console.log('Redis Client Error', err));
+  console.log(`on`);
+  await client.connect();
+  console.log(`connected and task id is ${taskId}`);
+  try{
+  await client.hDel('user-session:123',taskId, (err, response) => {
+  if (err) {
+    console.log('Error deleting key:', err);
+  } else if (response === 1) {
+    console.log(`Key ${taskId} deleted successfully`);
+    
+    
+  } else {
+    console.log(`Key ${taskId} does not exist`);
+  }
+  
+  client.quit(); // Close the Redis connection
+}).then(()=>{
+  saveRedisDataToJson();
+});
+  }
+  catch(err){console.log(err);}
+  finally{client.quit();}
 
-function deleteTaskById(taskId) {
-  console.log(`task id to delete is ${taskId}`);
-  // Read the existing tasks from the JSON file
-  fs.readFile('server/tasksJson.json', 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading the file:', err);
-      return;
-    }
-
-    // Parse the existing tasks
-    let tasks = JSON.parse(data);
-
-    // Filter out the task with the given id
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-
-    // Write the updated tasks array back to the JSON file
-    fs.writeFile('server/tasksJson.json', JSON.stringify(updatedTasks, null, 2), (err) => {
-      if (err) {
-        console.error('Error writing to file:', err);
-      } else {
-        console.log(`Task with id ${taskId} has been deleted`);
-      }
-    });
-  });
 }
 
 
@@ -179,7 +276,8 @@ app.get('/tasks', async (req, res) => {
   // const keys=client.keys();
   tasks = [];
   console.log("entered get");
-  let userSession = await client.hGetAll('user-session:123');
+  const userSession = await client.hGetAll('user-session:123');
+  // const userSession = await client.hGetAll();
   console.log(`user session type is ${typeof(userSession)}`);
   let dataAsJson=JSON.stringify(userSession, null, 2);
   console.log(dataAsJson);
@@ -194,16 +292,25 @@ app.get('/tasks', async (req, res) => {
   
   // POST endpoint to add a new item
   app.post('/tasks', async (req, res) =>{
+    console.log("inside post");
     console.log(req.body);
-    var val = req.body.name;
+    const val = req.body.name;
     if (val === undefined){
       val="rotem";
     }
     const key=getKeyByTime();
-    console.log(`val is ${val}`)
+    client.on('error', err => console.log('Redis Client Error', err));
+    await client.connect();
+    await client.hSet('user-session:123',key, val).then(()=>{
+      saveRedisDataToJson();
+    });
+    const value  = await client.get(key);  
+    client.quit();
+    // await saveRedisDataToJson();
+    console.log(`val is ${value}`)
     console.log(`key is ${key}`)
     
-    addToJson(key,val);
+    // addToJson(key,val);
     
     res.json(key);
     
@@ -246,7 +353,8 @@ app.get('/tasks', async (req, res) => {
 
     console.log("inside delete nodejs");
     console.log(req.params);
-    deleteTaskById(req.params.id);
+    deleteTaskRedis(req.params.id);
+    
 
 
 

@@ -4,7 +4,12 @@ import "./App.css";
 
 function App() {
   const [h2Content, seth2Content] = React.useState('nothing');
-  
+  const [text, setText] = React.useState('');
+
+  // Handler to update state when the input changes
+  const handleChange = (event) => {
+    setText(event.target.value);
+  };
 
   const AddItem = () => {
     // h2Content="trying";
@@ -23,7 +28,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: 'רםמ'}),
+        body: JSON.stringify({ name: text}),
       })
       .then(response => response.json())
       .then(data => {
@@ -52,8 +57,8 @@ function App() {
 
   }
   function DeleteItem(){
-    const idToDelete="1";
-    fetch(`/tasks/${idToDelete}`, {
+    // const idToDelete="1";
+    fetch(`/tasks/${text}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -80,6 +85,12 @@ function App() {
         <button onClick={DeleteItem} type="button">delete</button>
         <button onClick={PrintAll} type="button">print</button>
         <h2 id="2">{h2Content}</h2>
+        <input
+        type="text"
+        value={text}
+        onChange={handleChange}
+        placeholder="Enter some text"
+        />
       </header>
     </div>
   );
