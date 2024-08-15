@@ -54,9 +54,10 @@ async function loadJsonToRedis(){
       }
       const jsonData = JSON.parse(data);
 
-      console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
+      // console.log(`loaded from json to redis ${JSON.stringify(jsonData)}`)
       for (const key in jsonData) {
-        console.log(`loading ${key}: ${jsonData[key]} to redis`);
+        // console.log(`loading ${key}: ${jsonData[key]} to redis`);
+
         client.hSet('user-session:123',key,jsonData[key]);
       }
     });
