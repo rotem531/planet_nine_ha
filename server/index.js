@@ -6,7 +6,10 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3001;
 const REDIS_PORT = process.env.PORT || 6379;
 
-const client = redis.createClient(REDIS_PORT);
+const client = redis.createClient({
+  host: 6379 || 'redis', // Use environment variable or default to 'redis'
+  port: 6379
+});
 client.on('error', err => console.log('Redis Client Error', err));
 console.log(`on`);
 client.connect();
