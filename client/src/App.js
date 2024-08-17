@@ -50,17 +50,27 @@ function App() {
         .then((dataa) => {setTasks(dataa); console.log(dataa);});
   }  
 
-  async function DeleteItem(){
-    // const idToDelete="1";
-    // console.log("STARTED DELETE");
-    fetch(`http://localhost:3002/tasks/${selectedItem}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: 'sdc'})
-    });
-    // PrintAll();
+  // async function DeleteItem(){
+  //   // const idToDelete="1";
+  //   // console.log("STARTED DELETE");
+  //   fetch(`http://localhost:3002/tasks/${selectedItem}`, {
+  //     method: 'DELETE',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ name: 'sdc'})
+  //   });
+  //   // PrintAll();
+  // }
+  async function DeleteItemById(id) {
+    fetch(`http://localhost:3002/tasks/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: 'sdc'})
+        });
+        // PrintAll();
   }
   async function handleButtonClick(id) {
     DeleteItemById(id);
