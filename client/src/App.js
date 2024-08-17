@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
 
 function App() {
@@ -21,7 +20,7 @@ function App() {
     console.log("after e.preventDefault();");
     
   
-      await fetch('/tasks', {
+      await fetch('http://localhost:3002/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,13 +45,15 @@ function App() {
 
 
   async function PrintAll(){
-    await fetch("/tasks")
+    await fetch("http://localhost:3002/tasks")
         .then((res) => res.json())
         .then((dataa) => {setTasks(dataa); console.log(dataa);});
   }  
 
-  async function DeleteItemById(id){
-    await fetch(`/tasks/${id}`, {
+  async function DeleteItem(){
+    // const idToDelete="1";
+    // console.log("STARTED DELETE");
+    fetch(`http://localhost:3002/tasks/${selectedItem}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
