@@ -20,7 +20,7 @@ function App() {
     console.log("after e.preventDefault();");
     
   
-      await fetch('/tasks', {
+      await fetch('http://localhost:3002/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ function App() {
 
 
   async function PrintAll(){
-    await fetch("/tasks")
+    await fetch("http://localhost:3002/tasks")
         .then((res) => res.json())
         .then((dataa) => {setTasks(dataa); console.log(dataa);});
         // console.log(`data is ${data}`);
@@ -56,7 +56,7 @@ function App() {
   async function DeleteItem(){
     // const idToDelete="1";
     // console.log("STARTED DELETE");
-    fetch(`/tasks/${selectedItem}`, {
+    fetch(`http://localhost:3002/tasks/${selectedItem}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

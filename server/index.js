@@ -1,10 +1,13 @@
 const express = require("express");
 const redis = require("redis");
 const fs = require('fs');
+var cors = require('cors');
 
 
 const PORT = process.env.PORT || 3001;
 const REDIS_PORT = process.env.PORT || 6379;
+
+
 
 const client = redis.createClient({
   // host:  process.env.REDIS_HOST || 'redis',
@@ -21,6 +24,7 @@ console.log(`connected`);
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 
 
 
