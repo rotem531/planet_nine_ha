@@ -91,7 +91,6 @@ async function deleteTaskRedis(taskId){
   catch(err){console.log(err);}
   // finally{client.quit();}
   console.log(`finished delete ${taskId} task from redis`);
-
 }
 
 
@@ -141,6 +140,7 @@ app.get('/tasks', async (req, res) => {
     console.log(req.params);
     await deleteTaskRedis(req.params.id);
     console.log("LEAVING DELETE");
+    res.json();
   });
 
 app.listen(PORT, () => {
