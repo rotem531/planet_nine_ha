@@ -43,10 +43,33 @@ li{
   height: 100%;
   width: 50%;
 }
+#actions_div{
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  height: 100%;
+  width: 50%;
+}
+
+ul {
+  max-height: 100vh; /* Set the maximum height to the viewport height */
+  overflow-y: auto;  /* Enable vertical scrolling */
+  list-style-type: none; /* Remove default bullets */
+  padding: 0;
+  margin: 0;
+  direction: rtl;
+  width: 100%;
+}
 
 li{
     list-style: none; 
     margin-bottom: '10px' ;
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ccc; /* Optional: to visually separate items */
+    width: 100%;
+    direction: ltr;
   }
 
 label{
@@ -55,6 +78,21 @@ label{
 }
 .radios{
   margin-right: 10%;
+}
+
+.del-buttons {
+  margin-right: 10px;
+  margin-left: 5%;
+  padding: 5px 10px;
+  opacity: 0%; /* Hide the button by default */
+}
+
+li:hover {
+  background-color: rgba(4, 247, 255, 0.5);
+}
+
+li:hover .del-buttons {
+  opacity: 100%; /* Show the button when hovering over the list item */
 }
 
 

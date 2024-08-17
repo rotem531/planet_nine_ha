@@ -33,7 +33,7 @@ function App() {
         console.log('Item added:', data);
       })
       .catch(error => console.error('Error adding item:', error));
-      PrintAll();
+      // PrintAll();
   }
 
   
@@ -49,30 +49,21 @@ function App() {
     await fetch("/tasks")
         .then((res) => res.json())
         .then((dataa) => {setTasks(dataa); console.log(dataa);});
-        // console.log(`data is ${data}`);
-        setTexti(`${tasks.length}`);
-  }
+  }  
 
-
-  async function DeleteItem(){
-    // const idToDelete="1";
-    // console.log("STARTED DELETE");
-    fetch(`/tasks/${selectedItem}`, {
+  async function DeleteItemById(id){
+    await fetch(`/tasks/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: 'sdc'})
     });
-    // console.log("FINISHED DELETE");
-    PrintAll();
+    // PrintAll();
   }
-  const [selectedItem, setSelectedItem] = React.useState(null);
-  const [texti, setTexti] = React.useState("addItem");
-  const handleSelectItem = (event) => {
-    setSelectedItem(event.target.value);
-    console.log(event.target.value);
-  };
+  async function handleButtonClick(id) {
+    DeleteItemById(id);
+  }
 
 
   return (
@@ -83,13 +74,14 @@ function App() {
             {tasks.map((item) => (
               <li key={item[0]}>
                 <label>
-                  <input className="radios"
+                  {/* <input className="radios"
                     type="radio"
                     name="radios"
                     value={item[0]}
                     checked={selectedItem === item[0]}
                     onChange={handleSelectItem}
-                  />
+                  /> */}
+              <button className= "del-buttons" onClick={() => handleButtonClick(item[0])}>X</button>
               {item[1]}
             </label>
               </li>
@@ -97,15 +89,16 @@ function App() {
           </ul>
         </div>
         <div id="actions_div">
-          <button className="Form" onClick={AddItem} type="button">add task</button>
-          <input className="Form"
-          type="text"
-          value={text}
-          onChange={handleChange}
-          placeholder="Enter some text"
-          />
-          <button className="Form" onClick={DeleteItem} type="button">delete</button>
-          <button className="Form" onClick={PrintAll} type="button">print</button>
+          <div id="add_item_div">
+            <button className="Form" onClick={AddItem} type="button">add task</button>
+            <input className="Form"
+            type="text"
+            value={text}
+            onChange={handleChange}
+            placeholder="Enter some text"
+            />
+          </div>
+          <button className="Form" onClick={PrintAll} type="button">refresh</button>
           
         </div>
         
