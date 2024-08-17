@@ -1,19 +1,30 @@
 const express = require("express");
 const redis = require("redis");
 const fs = require('fs');
+var cors = require('cors');
 
 
 const PORT = process.env.PORT || 3001;
 const REDIS_PORT = process.env.PORT || 6379;
 
-const client = redis.createClient(REDIS_PORT);
-client.on('error', err => console.log('Redis Client Error', err));
+
+
+const client = redis.createClient({
+  // host:  process.env.REDIS_HOST || 'redis',
+  // port: 6379
+  url: 'redis://my-redis:6379'
+});
+// client.on('error', err => console.log('Redis Client Error', err));
+client.on('connect', () => {
+  console.log('Connected to Redis');
+});
 console.log(`on`);
 client.connect();
 console.log(`connected`);
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 
 
 
